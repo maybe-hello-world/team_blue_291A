@@ -1,0 +1,31 @@
+*.log
+*.aux
+*.cfg
+*.glo
+*.idx
+*.toc
+*.ilg
+*.ind
+*.out
+*.lof
+*.lot
+*.bbl
+*.blg
+*.gls
+*.cut
+*.hd
+*.dvi
+*.ps
+*.thm
+*.tgz
+*.zip
+*.rpi
+*~
+*.bcf
+*.run.xml
+*synctex.gz
+report.synctex(busy)
+
+# temporary while it's not finished in order to save up git lfs storage
+# will remove later
+*.pdf
