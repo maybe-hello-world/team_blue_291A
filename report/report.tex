@@ -1,0 +1,135 @@
+\documentclass[sigconf, screen, nonacm]{acmart}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+\title{Object Instance Segmentation for Better Distinguishability in In-Door Scenes}
+
+%%
+%% The "author" cmman and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Roman Beltiukov}
+\authornote{All authors contributed equally to this research.}
+\email{rbeltiukov@ucsb.edu}
+\orcid{0000-0001-8270-0219}
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+\author{Liu Kurafeeva}
+\email{liubov\_kurafeeva@ucsb.edu}
+\authornotemark[1]
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+
+\author{Francie Wei}
+\authornotemark[1]
+\email{hwei@ucsb.edu}
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+\input{sections/abstract.tex}
+\end{abstract}
+
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{datasets, neural networks, gaze detection, text tagging}
+
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+% Intro section
+\input{sections/intro.tex}
+
+% Related work
+\input{sections/1_related.tex}
+
+% Methods
+\input{sections/2_methods.tex}
+
+% Results
+\input{sections/3_results.tex}
+
+% Discussion
+\input{sections/4_discussion.tex}
+
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+\begin{acks}
+To Robert, for the bagels and explaining CMYK and color spaces.\cite{qfac}
+\end{acks}
+
+%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+%%
+%% If your work has an appendix, this is the place to put it.
+\appendix
+
+\section{Research Methods}
+
+\subsection{Part One}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
+malesuada, quam in pulvinar varius, metus nunc fermentum urna, id
+sollicitudin purus odio sit amet enim. Aliquam ullamcorper eu ipsum
+vel mollis. Curabitur quis dictum nisl. Phasellus vel semper risus, et
+lacinia dolor. Integer ultricies commodo sem nec semper.
+
+\subsection{Part Two}
+
+Etiam commodo feugiat nisl pulvinar pellentesque. Etiam auctor sodales
+ligula, non varius nibh pulvinar semper. Suspendisse nec lectus non
+ipsum convallis congue hendrerit vitae sapien. Donec at laoreet
+eros. Vivamus non purus placerat, scelerisque diam eu, cursus
+ante. Etiam aliquam tortor auctor efficitur mattis.
+
+\section{Online Resources}
+
+Nam id fermentum dui. Suspendisse sagittis tortor a nulla mollis, in
+pulvinar ex pretium. Sed interdum orci quis metus euismod, et sagittis
+enim maximus. Vestibulum gravida massa ut felis suscipit
+congue. Quisque mattis elit a risus ultrices commodo venenatis eget
+dui. Etiam sagittis eleifend elementum.
+
+Nam interdum magna at lectus dignissim, ac dignissim lorem
+rhoncus. Maecenas eu arcu ac neque placerat aliquam. Nunc pulvinar
+massa et mattis lacinia.
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
