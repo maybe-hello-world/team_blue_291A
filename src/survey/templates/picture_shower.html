@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Blue Project</title>
+</head>
+<body>
+
+<p>
+    Hello! It's a research project by Team Blue on 291A F21. We want you to count objects on the
+    picture and enter the amount below. Each time you submit the answer or reload the page you'll
+    receive a new picture.
+</p>
+
+<p>
+    You'll greatly help us if you spend 3-5 minutes just recognizing the objects. It's anonymous
+    and we don't even collect your cookies :D
+</p>
+
+
+<img src="static/{{ picture }}" alt="picture">
+
+<form action="/submit" method="post">
+    <label for="answer">Enter amount of the objects on the picture:</label>
+    <input type="number" id="answer" name="answer">
+    <input type="hidden" id="key" name="key" value="{{ picture }}">
+    <input type="submit" value="Submit">
+</form>
+
+
+</body>
+</html>
