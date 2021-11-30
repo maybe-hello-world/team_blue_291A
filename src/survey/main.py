@@ -66,7 +66,7 @@ async def submit(request: Request, answer: str = Form(...), key: str = Form(...)
     }
 
     await database.execute(query=query, values=values)
-    return RedirectResponse(url='/', status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url='.', status_code=status.HTTP_303_SEE_OTHER)
 
 
 if __name__ == "__main__":
