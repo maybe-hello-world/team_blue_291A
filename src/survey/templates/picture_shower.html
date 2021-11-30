@@ -5,20 +5,27 @@
     <title>Team Blue Project</title>
 </head>
 <body>
-
+<div style="text-align: center;">
 <p>
-    Hello! It's a research project by Team Blue on 291A F21. We want you to count objects on the
-    picture and enter the amount below. Each time you submit the answer or reload the page you'll
-    receive a new picture.
+    Hello! It's a research project by Team Blue on 291A F21. We want you participate in our small research.
+    Each time you submit the answer or reload the page you'll receive a new picture.
 </p>
 
 <p>
     You'll greatly help us if you spend 3-5 minutes just recognizing the objects. It's anonymous
     and we don't even collect your cookies :D
 </p>
+<br>
+<p>
+    In front of you there's a picture with black borders. In the center of the picture there's
+    a frame with some objects. Objects can be of different colors. <br> There could be some background behind
+    the objects and objects could be placed on top of each other. Can you estimate the amount of objects?
+    <br>
+    If you're unsure - enter the approximate value.
+</p>
 
 
-<img src="static/{{ picture }}" alt="picture">
+<img src="static/{{ picture }}" alt="picture" width="400" height="400">
 
 <form action="./submit" method="post">
     <label for="answer">Enter amount of the objects on the picture:</label>
@@ -26,7 +33,7 @@
     <input type="hidden" id="key" name="key" value="{{ picture }}">
     <input type="submit" value="Submit">
 </form>
-
+</div>
 
 </body>
 </html>
