@@ -1,30 +1,25 @@
-import torch
-
 import detectron2
 from detectron2.utils.logger import setup_logger
 
-setup_logger()
-
 # import some common libraries
 import numpy as np
-import os, json, cv2, random
+import cv2
 import networkx as nx
 
 # import some common detectron2 utilities
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
-from detectron2.config import get_cfg
-from detectron2.utils.visualizer import Visualizer
-from detectron2.data import MetadataCatalog, DatasetCatalog
 
 from matplotlib import pyplot as plt
 
-from deepgaze.saliency_map import FasaSaliencyMapping
 import deepgaze
 import deepgaze.saliency_map
 
 import coloring
 import mixing_strategies as mixing
+
+setup_logger()
+
 
 class Highlighter:
     """
@@ -121,7 +116,8 @@ class Highlighter:
         likeness = dict()
         for ind1 in range(len(layers)):
             for ind2 in range(ind1 + 1, len(layers)):
-                likeness[ind1, ind2] = likeness[ind1, ind2] = np.sum(layers[ind1] & layers[ind2]) / np.sum(layers[ind1] | layers[ind2])
+                likeness[ind1, ind2] = likeness[ind1, ind2] = np.sum(layers[ind1] & layers[ind2]) / np.sum(
+                    layers[ind1] | layers[ind2])
 
         to_delete = set()
         for i, j in likeness:
@@ -247,7 +243,7 @@ class Highlighter:
         result = mixing.combination(grayscale_result, segmentation_result, 0.3, 0.7)
         if self.add_saliency_to_result:
             result = mixing.combination(saliency_result, result, self.add_saliency_to_result,
-                                      1 - self.add_saliency_to_result)
+                                        1 - self.add_saliency_to_result)
 
         return result
 
