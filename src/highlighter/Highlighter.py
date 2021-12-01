@@ -9,8 +9,6 @@ setup_logger()
 import numpy as np
 import os, json, cv2, random
 import networkx as nx
-from collections import Counter, deque
-from itertools import islice
 
 from google.colab.patches import cv2_imshow
 
@@ -28,6 +26,8 @@ import deepgaze
 import deepgaze.saliency_map
 from google.colab.patches import cv2_imshow
 
+import coloring
+import mixinig_stratagegies as mixing
 
 class Highlighter:
     """
@@ -203,16 +203,10 @@ class Highlighter:
                 points1 = self.get_points_cloud(segmentation_masks[ind1])
                 points2 = self.get_points_cloud(segmentation_masks[ind2])
                 if not self.default_neighbour_diameter:
-                    diameter = max(max(max(points1, key
-                    x, y: x) - min(points1, key
-                    x, y: x), max(points1, key
-                    x, y: y) - min(points1, key
-                    x, y: y)),
-                    max(max(points1, key
-                    x, y: x) - min(points1, key
-                    x, y: x), max(points1, key
-                    x, y: y) - min(points1, key
-                    x, y: y)))*0.1
+                    diameter = max(max(max(points1, key=lambda x, y: x) - min(points1, key=lambda x, y: x),
+                                       max(points1, key=lambda x, y: y) - min(points1, key=lambda x, y: y)),
+                                   max(max(points1, key=lambda x, y: x) - min(points1, key=lambda x, y: x),
+                                       max(points1, key=lambda x, y: y) - min(points1, key=lambda x, y: y))) * 0.1
                 distance, points = self.get_shortest_distances(points1, points2)
                 if distance < diameter:
                     graph.add_edge(ind1, ind2, distance=distance)
@@ -246,81 +240,9 @@ class Highlighter:
         """
         result = np.zeros(self.shape[:2])
         for ind, layer in enumerate(segmentation_layers):
-            color = colors[ind] + 1  # (colors[ind]+1) * modifier
+            color = colors[ind] + 1
             result[layer] = color
         return result
-
-    def recolor_bfs(self, colors: dict, graph: nx.Graph) -> dict:
-        """
-        Use the information that 0 and 1 color will be close for us, to make image more distinguishable
-        Parameters
-        ----------
-        colors: dict, old coloring
-        graph: nx.Graph, graph of object connections
-
-        Returns
-        -------
-        dict, new coloring, that uses that 0 and 1 is close colors
-        """
-        if not colors or not len(graph.nodes):
-            return {}
-        amount_of_colors = len(set(colors.values()))
-        colors_range = deque(range(amount_of_colors))
-        colors_freqs = Counter(colors.values())
-
-        most_common_color = colors_freqs.most_common(1)[0][0]
-        result = {most_common_color: colors_range.pop()}
-
-        # find starting point - any node of most_common_color
-        current_point = None
-        for v in graph.nodes:
-            if colors[v] == most_common_color:
-                current_point = v
-                break
-        assert current_point is not None
-
-        stack = deque()
-        while len(result) < amount_of_colors:
-            neighs = graph.neighbors(current_point)
-            neighs = [v for v in neighs if colors[v] not in result]
-
-            neighs_colors = {colors[v] for v in neighs}
-            if neighs_colors:
-                step = len(colors_range) // len(neighs_colors)
-                colors_to_use = deque(islice(colors_range, None, None, step))
-                assert len(colors_to_use) >= len(neighs_colors)  # maybe even ==
-                for v in neighs:
-                    if colors[v] not in result:
-                        result[colors[v]] = colors_to_use.pop()
-                        colors_range.remove(result[colors[v]])
-
-                colors_range.reverse()
-
-            stack.extend(neighs)
-            current_point = stack.popleft()
-
-        return {k: result[v] for k, v in colors.items()}
-
-    def combination(self, img1: np.ndarray, img2: np.ndarray, prc1: float, prc2: float) -> np.ndarray:
-        """
-        Combines the two images into one with given percentages
-        Parameters
-        ----------
-        img1: np.ndarray, any int/float 2-3d image
-        img2: np.ndarray, any int/float 2-3d image
-        prc1: float, any fraction of first image in result
-        prc2: float, any fraction of second image in result
-
-        Returns
-        -------
-        np.ndarray int, [0-255]
-        """
-        assert img1.shape == img2.shape
-        img1 = (img1 - img1.min()) / (img1.max() - img1.min())
-        img2 = (img2 - img2.min()) / (img2.max() - img2.min())
-        res = img1 * prc1 + img2 * prc2
-        res = (res - res.min()) / (res.max() - res.min()) * 255
-        return res
 
     def prepare_highlight_result(self, image: np.ndarray) -> np.ndarray:
         """
@@ -340,12 +262,12 @@ class Highlighter:
 
         graph = self.masks_to_graph(segmentation_layers)
         colors = self.color_me(graph)
-        colors = self.recolor_bfs(colors, graph)
+        colors = coloring.recolor_bfs(colors, graph)
         segmentation_result = self.paint_me(segmentation_layers, colors)
 
-        result = self.combination(grayscale_result, segmentation_result, 0.3, 0.7)
+        result = mixing.combination(grayscale_result, segmentation_result, 0.3, 0.7)
         if self.add_saliency_to_result:
-            result = self.combination(saliency_result, result, self.add_saliency_to_result,
+            result = mixing.combination(saliency_result, result, self.add_saliency_to_result,
                                       1 - self.add_saliency_to_result)
 
         return result
