@@ -7,14 +7,12 @@ from itertools import islice
 def recolor_bfs(colors: dict, graph: nx.Graph) -> dict:
     """
     Use the information that 0 and 1 color will be close for us, to make image more distinguishable
-    Parameters
-    ----------
-    colors: dict, old coloring
-    graph: nx.Graph, graph of object connections
+    Args:
+        colors: dict, old coloring
+        graph: nx.Graph, graph of object connections
 
-    Returns
-    -------
-    dict, new coloring, that uses that 0 and 1 is close colors
+    Returns:
+        dict, new coloring, that uses that 0 and 1 is close colors
     """
     if not colors or not len(graph.nodes):
         return {}
