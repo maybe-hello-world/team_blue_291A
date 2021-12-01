@@ -1,22 +1,9 @@
-!sudo apt-get install libopencv-dev python-opencv
-!git clone https://github.com/mpatacchiola/deepgaze.git
-!cd deepgaze && git checkout 2.0 && sudo python setup.py install
-
-!pip install pyyaml==5.1 gdown
-
 import torch
 
-TORCH_VERSION = ".".join(torch.__version__.split(".")[:2])
-CUDA_VERSION = torch.__version__.split("+")[-1]
-!pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/$CUDA_VERSION/torch$TORCH_VERSION/index.html
-# Some basic setup:
-# Setup detectron2 logger
-import torch
 import detectron2
 from detectron2.utils.logger import setup_logger
 
 setup_logger()
-from google.colab import files
 
 # import some common libraries
 import numpy as np
@@ -40,7 +27,6 @@ from deepgaze.saliency_map import FasaSaliencyMapping
 import deepgaze
 import deepgaze.saliency_map
 from google.colab.patches import cv2_imshow
-
 
 
 class Highlighter:
@@ -75,18 +61,17 @@ class Highlighter:
                        677: 'mandarin_orange', 243: 'cherry', 818: 'pineapple', 304: 'cookie', 220: 'carrot',
                        516: 'grape'}
 
-    def __init__(self, _shape: tuple, _segmentation_threshold:int=0.015, _tiny_object_size:int=200,
-                 _intersection_fraction:int=0.2, _default_neighbour_diameter:int=30,
-                 _add_saliency_to_result:int=False):
+    def __init__(self, _shape: tuple, _segmentation_threshold: int = 0.015, _tiny_object_size: int = 200,
+                 _intersection_fraction: int = 0.2, _default_neighbour_diameter: int = 30,
+                 _add_saliency_to_result: int = False):
         self.shape = _shape
         self.tiny_object_size = _tiny_object_size
         self.intersection_fraction = _intersection_fraction
-        self.default_neighbour_diameter = _default_neighbour_diameter #If None - diameter based on object size will be used
-        self.add_saliency_to_result = _add_saliency_to_result # 0-1 otherwise
+        self.default_neighbour_diameter = _default_neighbour_diameter  # If None - diameter based on object size will be used
+        self.add_saliency_to_result = _add_saliency_to_result  # 0-1 otherwise
         self.saliency_map = deepgaze.saliency_map.FasaSaliencyMapping(self.shape[0], self.shape[1])
         self.segmentation_threshold = _segmentation_threshold
         self.segmentation_predictor = self.getPredictor()
-
 
     def getPredictor(self):
         """
@@ -117,11 +102,12 @@ class Highlighter:
         Saliency map in grayscale
         """
         assert image.shape == self.shape
-        image = self.saliency_map.returnMask(image, tot_bins=8, format='BGR2LAB')  # get the mask from the original image
+        image = self.saliency_map.returnMask(image, tot_bins=8,
+                                             format='BGR2LAB')  # get the mask from the original image
         image = cv2.GaussianBlur(image, (3, 3), 1)  # applying gaussin blur to make it pretty
         return image
 
-    def get_segmentation_masks(self, image: np.ndarray, enable_allowlist:bool=True) -> np.ndarray:
+    def get_segmentation_masks(self, image: np.ndarray, enable_allowlist: bool = True) -> np.ndarray:
         """
         Prepares layers of boolean masks for detected objects. One layer for one object.
         Parameters
@@ -146,7 +132,6 @@ class Highlighter:
             for ind2 in range(ind1 + 1, len(layers)):
                 likeness[ind1, ind2] = len(layers[ind1] == layers[ind2]) / layers.size
 
-
         to_delete = set()
         for i, j in likeness:
             if likeness[(i, j)] > self.intersection_fraction:
@@ -155,13 +140,13 @@ class Highlighter:
                 else:
                     to_delete.add(j)
                 if sum(layers[i]) < self.tiny_object_size:
-                  to_delete.add(i)
+                    to_delete.add(i)
                 if sum(layers[j]) < self.tiny_object_size:
-                  to_delete.add(j)
+                    to_delete.add(j)
         layers = np.delete(layers, list(to_delete), 0)
         return layers
 
-    def get_points_cloud(self, layer: np.ndarray, wind:int=1) -> list:
+    def get_points_cloud(self, layer: np.ndarray, wind: int = 1) -> list:
         """
         Returns list of tuples point coordinates for given object layer for finding distances. Uses mask edge detection.
         Parameters
@@ -176,7 +161,7 @@ class Highlighter:
         return [(i, j) for i in range(layer.shape[0]) for j in range(layer.shape[1]) if
                 layer[i, j] and not np.all(layer[i - wind:i + wind, j - wind:j + wind])]
 
-    def get_shortest_distances(self, points_cloud_l1:list, points_cloud_l2:list) -> (float, tuple):
+    def get_shortest_distances(self, points_cloud_l1: list, points_cloud_l2: list) -> (float, tuple):
         """
         Finds the shortest euclidean distance between two objects, given by list of coordinates.
         Parameters
@@ -189,7 +174,7 @@ class Highlighter:
         float, tuple, the minimum distance and points which represents the shortest distance
         """
         min_dist = ((points_cloud_l1[0][0] - points_cloud_l2[0][0]) ** 2 + (
-                    points_cloud_l1[0][1] - points_cloud_l2[0][1]) ** 2) ** (1 / 2)
+                points_cloud_l1[0][1] - points_cloud_l2[0][1]) ** 2) ** (1 / 2)
         min_points = ((points_cloud_l1[0][0], points_cloud_l1[0][1]), (points_cloud_l2[0][0], points_cloud_l2[0][1]))
         for x1, y1 in points_cloud_l1:
             for x2, y2 in points_cloud_l2:
@@ -218,8 +203,16 @@ class Highlighter:
                 points1 = self.get_points_cloud(segmentation_masks[ind1])
                 points2 = self.get_points_cloud(segmentation_masks[ind2])
                 if not self.default_neighbour_diameter:
-                    diameter = max(max(max(points1, key x,y: x) - min(points1, key x,y: x), max(points1, key x,y: y) - min(points1, key x,y: y)),
-                                max(max(points1, key x,y: x) - min(points1, key x,y: x), max(points1, key x,y: y) - min(points1, key x,y: y)))*0.1
+                    diameter = max(max(max(points1, key
+                    x, y: x) - min(points1, key
+                    x, y: x), max(points1, key
+                    x, y: y) - min(points1, key
+                    x, y: y)),
+                    max(max(points1, key
+                    x, y: x) - min(points1, key
+                    x, y: x), max(points1, key
+                    x, y: y) - min(points1, key
+                    x, y: y)))*0.1
                 distance, points = self.get_shortest_distances(points1, points2)
                 if distance < diameter:
                     graph.add_edge(ind1, ind2, distance=distance)
@@ -340,7 +333,7 @@ class Highlighter:
         -------
         np.ndarray, highlighted grayscale image
         """
-        grayscale_result = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        grayscale_result = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
         saliency_result = self.get_saliency(image)
         segmentation_layers = self.get_segmentation_masks(image, True)
@@ -352,9 +345,11 @@ class Highlighter:
 
         result = self.combination(grayscale_result, segmentation_result, 0.3, 0.7)
         if self.add_saliency_to_result:
-            result = self.combination(saliency_result, result, self.add_saliency_to_result, 1-self.add_saliency_to_result)
+            result = self.combination(saliency_result, result, self.add_saliency_to_result,
+                                      1 - self.add_saliency_to_result)
 
         return result
+
 
 if __name__ == '__main__':
     image_name = "rgb0002.png"
@@ -367,4 +362,3 @@ if __name__ == '__main__':
     ax[0].imshow(image)
     ax[1].imshow(higlighted_image, cmap="gray")
     plt.show()
-
