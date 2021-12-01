@@ -126,13 +126,13 @@ class Highlighter:
         to_delete = set()
         for i, j in likeness:
             if likeness[(i, j)] > self.intersection_fraction:
-                if sum(layers[i]) > sum(layers[j]):
+                if np.sum(layers[i]) > np.sum(layers[j]):
                     to_delete.add(i)
                 else:
                     to_delete.add(j)
-                if sum(layers[i]) < self.tiny_object_size:
+                if np.sum(layers[i]) < self.tiny_object_size:
                     to_delete.add(i)
-                if sum(layers[j]) < self.tiny_object_size:
+                if np.sum(layers[j]) < self.tiny_object_size:
                     to_delete.add(j)
         layers = np.delete(layers, list(to_delete), 0)
         return layers
