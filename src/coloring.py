@@ -4,7 +4,7 @@ from collections import Counter, deque
 from itertools import islice
 
 
-def recolor_bfs(self, colors: dict, graph: nx.Graph) -> dict:
+def recolor_bfs(colors: dict, graph: nx.Graph) -> dict:
     """
     Use the information that 0 and 1 color will be close for us, to make image more distinguishable
     Parameters
