@@ -1,0 +1,7 @@
+numpy
+networkx
+matplotlib
+opencv-python
+torchvision
+pyyaml==5.1
+Cython
