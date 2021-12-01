@@ -3,6 +3,7 @@ import networkx as nx
 from collections import Counter, deque
 from itertools import islice
 
+
 def recolor_bfs(self, colors: dict, graph: nx.Graph) -> dict:
     """
     Use the information that 0 and 1 color will be close for us, to make image more distinguishable
@@ -54,19 +55,19 @@ def recolor_bfs(self, colors: dict, graph: nx.Graph) -> dict:
 
     return {k: result[v] for k, v in colors.items()}
 
-def recolor_by_frequncy(colors: dict) -> dict:
+
+def recolor_by_frequency(colors: dict) -> dict:
     """
     Use the information that 0 and 1 color will be close for us and info about the frequencies of similar objects
     to change the colors to new ones
-    Parameters
-    ----------
-    colors: dict, old coloring
+    Args:
+        colors: dict, old coloring
 
-    Returns
-    -------
-    dict, new coloring, that uses that 0 and 1 is close colors
+    Returns:
+        dict, new coloring, that uses that 0 and 1 is close colors
     """
-    replace_dict = {val: ind for ind, val in enumerate(sorted(set(colors.values()), key=lambda x: list(colors.values()).count(colors[x])))}
+    replace_dict = {val: ind for ind, val in
+                    enumerate(sorted(set(colors.values()), key=lambda x: list(colors.values()).count(colors[x])))}
     result_dict = {}
     for key in colors:
         result_dict[key] = replace_dict[colors[key]]

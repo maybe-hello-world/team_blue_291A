@@ -33,15 +33,14 @@ class Highlighter:
     """
     The class prepared by Team Blue as part of CS291a Fall 2021, UCSB
     Use prepare_highlight_result() to get the result.
-    Parameters
-    ----------
-    _shape: tuple of ints, the shape of picture to transform, example (640, 480, 3)
-    _segmentation_threshold: float [0-1], threshold for detectron segmentation model,
-    _tiny_object_size: int, size in pixels, less then which detected object is just deleted
-    _intersection_fraction: float [0-1], for what fraction should object intersect to be "same" object
-    _default_neighbour_diameter: int/None, size in pixels, located within less than this is "neighboring" for eye
-     objects. Suggest to base on implant phosphene size. Use None for relative to object size detection
-    _add_saliency_to_result: bool, to add or not to add saliency map to result
+    Args:
+        _shape: tuple of ints, the shape of picture to transform, example (640, 480, 3)
+        _segmentation_thre5shold: float [0-1], threshold for detectron segmentation model,
+        _tiny_object_size: int, size in pixels, less then which detected object is just deleted
+        _intersection_fraction: float [0-1], for what fraction should object intersect to be "same" object
+        _default_neighbour_diameter: int/None, size in pixels, located within less than this is "neighboring" for eye
+         objects. Suggest to base on implant phosphene size. Use None for relative to object size detection
+        _add_saliency_to_result: bool, to add or not to add saliency map to result
     """
 
     allowed_classes = {12: 'apple', 343: 'cube', 1035: 'stockings_(leg_wear)', 298: 'computer_keyboard',
@@ -67,8 +66,8 @@ class Highlighter:
         self.shape = _shape
         self.tiny_object_size = _tiny_object_size
         self.intersection_fraction = _intersection_fraction
-        self.default_neighbour_diameter = _default_neighbour_diameter  # If None - diameter based on object size will be used
-        self.add_saliency_to_result = _add_saliency_to_result  # 0-1 otherwise
+        self.default_neighbour_diameter = _default_neighbour_diameter
+        self.add_saliency_to_result = _add_saliency_to_result
         self.saliency_map = deepgaze.saliency_map.FasaSaliencyMapping(self.shape[0], self.shape[1])
         self.segmentation_threshold = _segmentation_threshold
         self.segmentation_predictor = self.getPredictor()
@@ -76,9 +75,8 @@ class Highlighter:
     def getPredictor(self):
         """
         Prepares the detectron predictor (mask_rcnn) with pretrained on LVIS dataset.
-        Returns
-        -------
-        Predictor to get the saliency result from image
+        Returns:
+            Predictor to get the saliency result from image
         """
         cfg = detectron2.config.get_cfg()
         cfg.merge_from_file(
@@ -93,13 +91,11 @@ class Highlighter:
     def get_saliency(self, image: np.ndarray) -> np.ndarray:
         """
         Returns saliency map for given image.
-        Parameters
-        ----------
-        image: np.ndarray, image to get the saliency map. Assume RGB image, no prove for other images.
+        Args:
+            image: np.ndarray, image to get the saliency map. Assume RGB image, no prove for other images.
 
-        Returns
-        -------
-        Saliency map in grayscale
+        Returns:
+            Saliency map in grayscale
         """
         assert image.shape == self.shape
         image = self.saliency_map.returnMask(image, tot_bins=8,
@@ -110,14 +106,12 @@ class Highlighter:
     def get_segmentation_masks(self, image: np.ndarray, enable_allowlist: bool = True) -> np.ndarray:
         """
         Prepares layers of boolean masks for detected objects. One layer for one object.
-        Parameters
-        ----------
-        image: np.ndarray float/int, RGB image for segmentation
-        enable_allowlist: bool, for using or skipping predefined list of allowed classes (based on logic)
+        Args:
+            image: np.ndarray float/int, RGB image for segmentation
+            enable_allowlist: bool, for using or skipping predefined list of allowed classes (based on logic)
 
-        Returns
-        -------
-        np.ndarray of bool, (N, X, Y), where X, Y - image shape, N - number of detected objects
+        Returns:
+            np.ndarray of bool, (N, X, Y), where X, Y - image shape, N - number of detected objects
         """
         outputs = self.segmentation_predictor(image)
         layers = np.array(outputs['instances'].pred_masks.cpu())
@@ -149,14 +143,12 @@ class Highlighter:
     def get_points_cloud(self, layer: np.ndarray, wind: int = 1) -> list:
         """
         Returns list of tuples point coordinates for given object layer for finding distances. Uses mask edge detection.
-        Parameters
-        ----------
-        layer: np.ndarray True/False, mask layer of object
-        wind: int, window size for edge detection
+        Args:
+            layer: np.ndarray True/False, mask layer of object
+            wind: int, window size for edge detection
 
-        Returns
-        -------
-        list of tuples point coordinates for given object layer
+        Returns:
+            list of tuples point coordinates for given object layer
         """
         return [(i, j) for i in range(layer.shape[0]) for j in range(layer.shape[1]) if
                 layer[i, j] and not np.all(layer[i - wind:i + wind, j - wind:j + wind])]
@@ -164,14 +156,12 @@ class Highlighter:
     def get_shortest_distances(self, points_cloud_l1: list, points_cloud_l2: list) -> (float, tuple):
         """
         Finds the shortest euclidean distance between two objects, given by list of coordinates.
-        Parameters
-        ----------
-        points_cloud_l1: list, list of coordinates
-        points_cloud_l2: list, list of coordinates
+        Args:
+            points_cloud_l1: list, list of coordinates
+            points_cloud_l2: list, list of coordinates
 
-        Returns
-        -------
-        float, tuple, the minimum distance and points which represents the shortest distance
+        Returns:
+            (float, tuple): the minimum distance and points which represents the shortest distance
         """
         min_dist = ((points_cloud_l1[0][0] - points_cloud_l2[0][0]) ** 2 + (
                 points_cloud_l1[0][1] - points_cloud_l2[0][1]) ** 2) ** (1 / 2)
@@ -187,13 +177,11 @@ class Highlighter:
     def masks_to_graph(self, segmentation_masks: np.ndarray) -> nx.Graph:
         """
         Finds the graph of neighboring object on boolean masks of objects
-        Parameters
-        ----------
-        segmentation_masks: np.ndarray bool (N, X, Y), N - number of objects, X, Y - image shape
+        Args:
+            segmentation_masks: np.ndarray bool (N, X, Y), N - number of objects, X, Y - image shape
 
-        Returns
-        -------
-        nx.Graph, with connections for those objects which is neighbours on picture. Objects identified by indexes.
+        Returns:
+            nx.Graph, with connections for those objects which is neighbours on picture. Objects identified by indexes.
         """
         diameter = self.default_neighbour_diameter  # how many "pixels" phospehene are?
         graph = nx.Graph()
@@ -215,13 +203,11 @@ class Highlighter:
     def color_me(self, graph: nx.Graph) -> dict:
         """
         Function of greedy/some other algorithm for graph coloring
-        Parameters
-        ----------
-        graph: nx.Graph to color
+        Args:
+            graph: nx.Graph to color
 
-        Returns
-        -------
-        dict, of object and int colors for all graph objects
+        Returns:
+            dict, of object and int colors for all graph objects
         """
         colors = nx.coloring.greedy_color(graph, strategy='random_sequential')
         return colors
@@ -229,14 +215,12 @@ class Highlighter:
     def paint_me(self, segmentation_layers: np.ndarray, colors: dict) -> np.ndarray:
         """
         Creates X,Y image with integer value for each object if it is "on" the picture
-        Parameters
-        ----------
-        segmentation_layers: np.ndarray bool, of masks for each object
-        colors: dict {index: color}, color for each object
+        Args:
+            segmentation_layers: np.ndarray bool, of masks for each object
+            colors: dict {index: color}, color for each object
 
-        Returns
-        -------
-        np.ndarray, (X, Y) picture int values
+        Returns:
+            np.ndarray, (X, Y) picture int values
         """
         result = np.zeros(self.shape[:2])
         for ind, layer in enumerate(segmentation_layers):
@@ -247,13 +231,11 @@ class Highlighter:
     def prepare_highlight_result(self, image: np.ndarray) -> np.ndarray:
         """
         Function that uses class settings and functions for creating the highlighted image
-        Parameters
-        ----------
-        image: np.ndarray, initial RGB image
+        Args:
+            image: np.ndarray, initial RGB image
 
-        Returns
-        -------
-        np.ndarray, highlighted grayscale image
+        Returns:
+            np.ndarray, highlighted grayscale image
         """
         grayscale_result = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
