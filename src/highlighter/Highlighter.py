@@ -18,6 +18,8 @@ import deepgaze.saliency_map
 import coloring
 import mixing_strategies as mixing
 
+from typing import Literal, Optional
+
 setup_logger()
 
 
@@ -27,12 +29,13 @@ class Highlighter:
     Use prepare_highlight_result() to get the result.
     Args:
         _shape: tuple of ints, the shape of picture to transform, example (640, 480, 3)
-        _segmentation_thre5shold: float [0-1], threshold for detectron segmentation model,
+        _segmentation_threshold: float [0-1], threshold for detectron segmentation model,
         _tiny_object_size: int, size in pixels, less then which detected object is just deleted
         _intersection_fraction: float [0-1], for what fraction should object intersect to be "same" object
         _default_neighbour_diameter: int/None, size in pixels, located within less than this is "neighboring" for eye
          objects. Suggest to base on implant phosphene size. Use None for relative to object size detection
-        _add_saliency_to_result: bool, to add or not to add saliency map to result
+        _add_saliency_to_result: Optional[float], to add or not to add saliency map to result
+        _device: 'cpu' or 'cuda' (if CUDA-enabled GPU)
     """
 
     allowed_classes = {12: 'apple', 343: 'cube', 1035: 'stockings_(leg_wear)', 298: 'computer_keyboard',
@@ -52,9 +55,9 @@ class Highlighter:
                        677: 'mandarin_orange', 243: 'cherry', 818: 'pineapple', 304: 'cookie', 220: 'carrot',
                        516: 'grape'}
 
-    def __init__(self, _shape: tuple, _segmentation_threshold: int = 0.015, _tiny_object_size: int = 200,
-                 _intersection_fraction: int = 0.2, _default_neighbour_diameter: int = 30,
-                 _add_saliency_to_result: int = False):
+    def __init__(self, _shape: tuple, _segmentation_threshold: float = 0.015, _tiny_object_size: int = 200,
+                 _intersection_fraction: float = 0.2, _default_neighbour_diameter: int = 30,
+                 _add_saliency_to_result: Optional[float] = None, _device: Literal['cpu', 'cuda'] = 'cpu'):
         self.shape = _shape
         self.tiny_object_size = _tiny_object_size
         self.intersection_fraction = _intersection_fraction
@@ -63,6 +66,7 @@ class Highlighter:
         self.saliency_map = deepgaze.saliency_map.FasaSaliencyMapping(self.shape[0], self.shape[1])
         self.segmentation_threshold = _segmentation_threshold
         self.segmentation_predictor = self.get_predictor()
+        self.device = _device
 
     def get_predictor(self):
         """
@@ -76,7 +80,7 @@ class Highlighter:
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
             'LVISv0.5-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml')
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = self.segmentation_threshold
-
+        cfg.MODEL.DEVICE = self.device
         predictor = DefaultPredictor(cfg)
         return predictor
 
@@ -133,7 +137,8 @@ class Highlighter:
         layers = np.delete(layers, list(to_delete), 0)
         return layers
 
-    def get_points_cloud(self, layer: np.ndarray, wind: int = 1) -> list:
+    @staticmethod
+    def get_points_cloud(layer: np.ndarray, wind: int = 1) -> list:
         """
         Returns list of tuples point coordinates for given object layer for finding distances. Uses mask edge detection.
         Args:
@@ -146,7 +151,8 @@ class Highlighter:
         return [(i, j) for i in range(layer.shape[0]) for j in range(layer.shape[1]) if
                 layer[i, j] and not np.all(layer[i - wind:i + wind, j - wind:j + wind])]
 
-    def get_shortest_distances(self, points_cloud_l1: list, points_cloud_l2: list) -> (float, tuple):
+    @staticmethod
+    def get_shortest_distances(points_cloud_l1: list, points_cloud_l2: list) -> (float, tuple):
         """
         Finds the shortest euclidean distance between two objects, given by list of coordinates.
         Args:
@@ -193,7 +199,8 @@ class Highlighter:
                     graph.add_edge(ind1, ind2, distance=distance)
         return graph
 
-    def color_me(self, graph: nx.Graph) -> dict:
+    @staticmethod
+    def color_graph(graph: nx.Graph) -> dict:
         """
         Function of greedy/some other algorithm for graph coloring
         Args:
@@ -236,12 +243,12 @@ class Highlighter:
         segmentation_layers = self.get_segmentation_masks(image, True)
 
         graph = self.masks_to_graph(segmentation_layers)
-        colors = self.color_me(graph)
+        colors = self.color_graph(graph)
         colors = coloring.recolor_bfs(colors, graph)
         segmentation_result = self.paint_me(segmentation_layers, colors)
 
         result = mixing.combination(grayscale_result, segmentation_result, 0.3, 0.7)
-        if self.add_saliency_to_result:
+        if self.add_saliency_to_result is not None:
             result = mixing.combination(saliency_result, result, self.add_saliency_to_result,
                                         1 - self.add_saliency_to_result)
 
@@ -250,12 +257,12 @@ class Highlighter:
 
 if __name__ == '__main__':
     image_name = "rgb0002.png"
-    image = cv2.imread(f"rgb/{image_name}")
-    blue = Highlighter(image.shape)
+    _image = cv2.imread(f"rgb/{image_name}")
+    blue = Highlighter(_image.shape)
 
-    higlighted_image = blue.prepare_highlight_result(image)
+    higlighted_image = blue.prepare_highlight_result(_image)
 
     fix, ax = plt.subplots(1, 2)
-    ax[0].imshow(image)
+    ax[0].imshow(_image)
     ax[1].imshow(higlighted_image, cmap="gray")
     plt.show()
