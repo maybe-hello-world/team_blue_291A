@@ -124,7 +124,7 @@ class Highlighter:
         likeness = dict()
         for ind1 in range(len(layers)):
             for ind2 in range(ind1 + 1, len(layers)):
-                likeness[ind1, ind2] = len(layers[ind1] == layers[ind2]) / layers.size
+                likeness[ind1, ind2] = likeness[ind1, ind2] = np.sum(layers[ind1] & layers[ind2]) / np.sum(layers[ind1] | layers[ind2])
 
         to_delete = set()
         for i, j in likeness:
