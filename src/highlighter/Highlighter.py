@@ -10,8 +10,6 @@ import numpy as np
 import os, json, cv2, random
 import networkx as nx
 
-from google.colab.patches import cv2_imshow
-
 # import some common detectron2 utilities
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
@@ -24,10 +22,9 @@ from matplotlib import pyplot as plt
 from deepgaze.saliency_map import FasaSaliencyMapping
 import deepgaze
 import deepgaze.saliency_map
-from google.colab.patches import cv2_imshow
 
 import coloring
-import mixinig_stratagegies as mixing
+import mixing_strategies as mixing
 
 class Highlighter:
     """
@@ -70,9 +67,9 @@ class Highlighter:
         self.add_saliency_to_result = _add_saliency_to_result
         self.saliency_map = deepgaze.saliency_map.FasaSaliencyMapping(self.shape[0], self.shape[1])
         self.segmentation_threshold = _segmentation_threshold
-        self.segmentation_predictor = self.getPredictor()
+        self.segmentation_predictor = self.get_predictor()
 
-    def getPredictor(self):
+    def get_predictor(self):
         """
         Prepares the detectron predictor (mask_rcnn) with pretrained on LVIS dataset.
         Returns:
@@ -130,7 +127,7 @@ class Highlighter:
         for i, j in likeness:
             if likeness[(i, j)] > self.intersection_fraction:
                 if sum(layers[i]) > sum(layers[j]):
-                    to_delete.add(j)
+                    to_delete.add(i)
                 else:
                     to_delete.add(j)
                 if sum(layers[i]) < self.tiny_object_size:
