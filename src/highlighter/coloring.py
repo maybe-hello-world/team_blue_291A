@@ -5,15 +5,6 @@ from itertools import islice
 
 
 def recolor_bfs(colors: dict, graph: nx.Graph) -> dict:
-    """
-    Use the information that 0 and 1 color will be close for us, to make image more distinguishable
-    Args:
-        colors: dict, old coloring
-        graph: nx.Graph, graph of object connections
-
-    Returns:
-        dict, new coloring, that uses that 0 and 1 is close colors
-    """
     if not colors or not len(graph.nodes):
         return {}
     amount_of_colors = len(set(colors.values()))
@@ -32,8 +23,10 @@ def recolor_bfs(colors: dict, graph: nx.Graph) -> dict:
     assert current_point is not None
 
     stack = deque()
+    unvisited_nodes = set(graph.nodes) - {current_point}
     while len(result) < amount_of_colors:
-        neighs = graph.neighbors(current_point)
+        neighs = list(graph.neighbors(current_point))
+        unvisited_nodes = unvisited_nodes - set(neighs)
         neighs = [v for v in neighs if colors[v] not in result]
 
         neighs_colors = {colors[v] for v in neighs}
@@ -49,6 +42,12 @@ def recolor_bfs(colors: dict, graph: nx.Graph) -> dict:
             colors_range.reverse()
 
         stack.extend(neighs)
+
+        if not stack and not unvisited_nodes:
+            break
+
+        if not stack:
+            stack.append(unvisited_nodes.pop())
         current_point = stack.popleft()
 
     return {k: result[v] for k, v in colors.items()}
