@@ -2,6 +2,8 @@
 
 \usepackage{multirow}
 \usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
 
 %%
 %% end of the preamble, start of the body of the document source.
@@ -63,11 +65,10 @@
 
 
 
-% \begin{teaserfigure}
-% 	\includegraphics[width=\textwidth]{sampleteaser}
-% 	\caption{figure caption}
-% 	\Description{figure description}
-% \end{teaserfigure}
+\begin{teaserfigure}
+	\includegraphics[width=\textwidth]{figures/teaser.png}
+	\caption{Proposed method of combining recolored segmentation results, saliency map and background to highlight objects and allow to better distinguish them.}
+\end{teaserfigure}
 
 %%
 %% This command processes the author and affiliation and title
@@ -100,6 +101,7 @@
 \appendix
 
 \input{sections/app_1_survey.tex}
+\input{sections/app_2_pictures.tex}
 
 \end{document}
 \endinput
