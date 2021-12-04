@@ -130,11 +130,14 @@ class Highlighter:
                     to_delete.add(i)
                 else:
                     to_delete.add(j)
-                if np.sum(layers[i]) < self.tiny_object_size:
-                    to_delete.add(i)
-                if np.sum(layers[j]) < self.tiny_object_size:
-                    to_delete.add(j)
         layers = np.delete(layers, list(to_delete), 0)
+
+        to_delete = set()
+        for i in range(len(layers)):
+            if np.sum(layers[i]) < self.tiny_object_size:
+                to_delete.add(i)
+        layers = np.delete(layers, list(to_delete), 0)
+
         return layers
 
     @staticmethod
