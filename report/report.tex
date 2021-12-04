@@ -1,0 +1,109 @@
+\documentclass[sigconf, screen, nonacm]{acmart}
+
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+\title{Object Instance Segmentation for Better Distinguishability in In-Door Scenes}
+
+%%
+%% The "author" cmman and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Roman Beltiukov}
+\authornote{All authors contributed equally to this research.}
+\email{rbeltiukov@ucsb.edu}
+\orcid{0000-0001-8270-0219}
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+\author{Liubov Kurafeeva}
+\email{liubov\_kurafeeva@ucsb.edu}
+\authornotemark[1]
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+
+\author{Francie Wei}
+\authornotemark[1]
+\email{hwei@ucsb.edu}
+\affiliation{%
+	\institution{University of California, Santa Barbara}
+  \city{Santa Barbara}
+	\state{CA}
+	\country{USA}
+}
+
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+\input{sections/abstract.tex}
+\end{abstract}
+
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{bionic vision, objects identification, indoor scenes}
+
+
+
+\begin{teaserfigure}
+	\includegraphics[width=\textwidth]{figures/teaser.png}
+	\caption{Proposed method of combining recolored segmentation results, saliency map and background to highlight objects and allow to better distinguish them.}
+\end{teaserfigure}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+% Intro section
+\input{sections/intro.tex}
+
+% Related work
+\input{sections/1_related.tex}
+
+% Methods
+\input{sections/2_methods.tex}
+
+% Results
+\input{sections/3_results.tex}
+
+% Discussion
+\input{sections/4_discussion.tex}
+
+%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+%%
+%% If your work has an appendix, this is the place to put it.
+\appendix
+
+\input{sections/app_1_survey.tex}
+\input{sections/app_2_pictures.tex}
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.

@@ -1,0 +1,20 @@
+\section{Discussion}
+
+In this work, we combined different deep-learning models and graph theory to process pictures to facilitate objects finding, separation, and estimation for bionic implant users. We simulated bionic implant vision via open-source implementation of computational models of bionic vision, compared original pictures with their modified versions, and proved that our findings at worst do not complicate solving the tasks stated above but often facilitate it and improve human efficiency. We also made all the code and results available on \url{https://github.com/maybe-hello-world/team_blue_291A}.
+
+\subsection{Possible improvements}
+
+Despite being visually attractive, the results do not always introduce a significant change to the user's ability to solve the task. We want to mention two different possible problems to overcome to make the difference more noticeable:
+\begin{enumerate}
+    \item Segmentation model threshold attenuation. Several hyperparameters (like threshold and non-max suppression) need to be modified during the inference of the network. We found this step especially complicated during the research due to the lack of computing resources for that. Still, given the needed amount of time, the segmentation network could be adjusted to reduce the number of false-positive objects. For example, we had to exclude some classes from the segmentation process (like the `toy` class) because they provided too many false positive masks. We believe that reducing the number of the model's errors would increase the solution's overall performance.
+    \item Development of new recoloring strategies. For the paper, we implemented a relatively simple BFS-related recoloring strategy which does not always produce positive results according to our observations. We suggest providing a better recoloring approach would help to highlight the objects more qualitatively and facilitate their visual separation further. 
+\end{enumerate}
+
+\subsection{Dataset for estimation}
+For the initial iteration of the research, we took the dataset with different objects stacked together to emphasize the possibility to visually differ them and estimate their total amount. To better demonstrate the method, we suggest testing this solution in the clumsy environment with different obstacles provided and objects not in the center of the frame. Initial LVIS dataset could be a good starting point for future work, though trying to spread the research on video stream estimation could require custom dataset collection. 
+
+\subsection{Survey}
+Due to limited time and people to survey, we couldn't score all coloring and mixing strategies and collect feedback on a broader set of pictures. In the future, we suggest spending more time and resources on it to find the best possible strategy, better measure performance, and find situations where our solution works better. 
+
+\subsection{Future work}
+For future work based on this research, we suggest overcoming the mentioned problems of our work and enhancing it to the degree of providing helpful assistance to bionic vision implant users. Stabilizing of segmentation and recoloring process together with network distillation to lower resource consumption would provide a better experience and can advance this research to the point of applicability for real devices. In addition to that, we see a potentially exciting improvement in implementing the audio interface for the segmentation network that would allow changing allowed classes for segmentation on the fly. That would provide an interesting experience of a user being able to highlight only needed objects and provide them theoretically better-than-human visual perception in certain situations. 
